@@ -8,12 +8,9 @@ display_record() {
     local sub=$1
     local line
 
-    line=$(dig "$sub.$domain" | awk '/ANSWER SECTION:/ {getline; print}')
+    line=$(dig "$sub.$domain" +short)
 
-    record_type=$(echo "$line" | awk '{print $4}')
-    destination=$(echo "$line" | awk '{print $5}')
-
-    echo "The subdomain $sub is a $record_type record and points to $destination"
+    echo "The subdomain $sub is a A record and points to $line"
 }
 
 if [ -z "$subdomain" ]; then
