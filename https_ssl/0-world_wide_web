@@ -8,7 +8,7 @@ display_record() {
     local sub=$1
     local line
 
-    line=$(dig "$sub.$domain" +short)
+    line=$(dig "$sub.$domain" +short | awk 'NR==1')
 
     echo "The subdomain $sub is a A record and points to $line"
 }
