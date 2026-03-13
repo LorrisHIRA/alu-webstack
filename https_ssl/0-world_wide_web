@@ -4,20 +4,21 @@
 domain=$1
 subdomain=$2
 
-check_subdomain() {
+get_info() {
     sub=$1
-    result=$(dig ${sub}.${domain} | awk '/ANSWER SECTION:/ {getline; print $4 " " $5}')
+    result=$(dig ${sub}.${domain} | awk '/ANSWER SECTION:/ {getline; print $4, $5}')
     record=$(echo "$result" | awk '{print $1}')
     ip=$(echo "$result" | awk '{print $2}')
 
     echo "The subdomain ${sub} is a ${record} record and points to ${ip}"
 }
 
-if [ -z "$subdomain" ]; then
-    for s in www lb-01 web-01 web-02
-    do
-        check_subdomain $s
-    done
+if [ -z "$subdomain" ]
+then
+    get_info www
+    get_info lb-01
+    get_info web-01
+    get_info web-02
 else
-    check_subdomain $subdomain
+    get_info $subdomain
 fi
