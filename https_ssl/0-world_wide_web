@@ -1,23 +1,26 @@
 #!/usr/bin/env bash
-# Displays DNS information for subdomains
+# Displays information about subdomains
+
+get_subdomain_info() {
+    local domain=$1
+    local subdomain=$2
+    local result
+    result=$(dig "$subdomain.$domain" | grep -A1 'ANSWER SECTION:' | tail -1)
+    local record_type
+    record_type=$(echo "$result" | awk '{print $4}')
+    local destination
+    destination=$(echo "$result" | awk '{print $5}')
+    echo "The subdomain $subdomain is a $record_type record and points to $destination"
+}
 
 domain=$1
 subdomain=$2
 
-display_record() {
-    local sub=$1
-    local line
-
-    line=$(dig "$sub.$domain" +short | awk 'NR==1')
-
-    echo "The subdomain $sub is a A record and points to $line"
-}
-
 if [ -z "$subdomain" ]; then
-    display_record "www"
-    display_record "lb-01"
-    display_record "web-01"
-    display_record "web-02"
+    get_subdomain_info "$domain" "www"
+    get_subdomain_info "$domain" "lb-01"
+    get_subdomain_info "$domain" "web-01"
+    get_subdomain_info "$domain" "web-02"
 else
-    display_record "$subdomain"
+    get_subdomain_info "$domain" "$subdomain"
 fi
