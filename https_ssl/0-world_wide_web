@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# Displays information about subdomains
+# shellcheck disable=SC2086
+
+domain=$1
+subdomain=$2
+
+function audit_subdomain {
+    result=$(dig "$1.$domain" | awk '/IN[[:space:]]A/ {print $4}')
+    echo "The subdomain $1 is a A record and points to $result"
+}
+
+if [ -z "$subdomain" ]
+then
+    audit_subdomain www
+    audit_subdomain lb-01
+    audit_subdomain web-01
+    audit_subdomain web-02
+else
+    audit_subdomain $subdomain
+fi
