@@ -5,11 +5,12 @@ get_subdomain_info() {
     local domain=$1
     local subdomain=$2
     local full="${subdomain}.${domain}"
+    local dest
+    local record_type
 
-    dig +short "${full}" A | awk -v subd="$subdomain" '{
-        print "The subdomain " subd " is a A record and points to " $1
-        exit
-    }'
+    dest=$(dig +short "${full}")
+    record_type=$(dig "${full}" | awk '/ANSWER SECTION:/{getline; print $4}')
+    echo "The subdomain ${subdomain} is a ${record_type} record and points to ${dest}"
 }
 
 domain=$1
