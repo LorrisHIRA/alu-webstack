@@ -1,25 +1,26 @@
 #!/usr/bin/env bash
-# Script that displays information about subdomains
+# Displays information about subdomains
 
 get_subdomain_info() {
     local domain=$1
     local subdomain=$2
-    local full="${subdomain}.${domain}"
-    local dest
+    local result
+    result=$(dig "$subdomain.$domain" | awk '/ANSWER SECTION:/{getline; print}')
     local record_type
-
-    dest=$(dig +short "${full}")
-    record_type=$(dig "${full}" | awk '/ANSWER SECTION:/{getline; print $4}')
-    echo "The subdomain ${subdomain} is a ${record_type} record and points to ${dest}"
+    record_type=$(echo "$result" | awk '{print $4}')
+    local destination
+    destination=$(echo "$result" | awk '{print $5}')
+    echo "The subdomain $subdomain is a $record_type record and points to $destination"
 }
 
 domain=$1
 subdomain=$2
 
 if [ -z "$subdomain" ]; then
-    for sub in www lb-01 web-01 web-02; do
-        get_subdomain_info "$domain" "$sub"
-    done
+    get_subdomain_info "$domain" "www"
+    get_subdomain_info "$domain" "lb-01"
+    get_subdomain_info "$domain" "web-01"
+    get_subdomain_info "$domain" "web-02"
 else
     get_subdomain_info "$domain" "$subdomain"
 fi
